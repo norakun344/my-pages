@@ -55,20 +55,10 @@ function updateAccessCount() {
   document.getElementById('accessCount').textContent = count;
 }
 
-function displayAccessCount() {
-  const count = localStorage.getItem('accessCount') || 0;
-  document.getElementById('accessCount').textContent = count;
-}
-
 // ページ読み込み時にアクセスカウント更新
 window.addEventListener('load', () => {
-  displayAccessCount();
-});
-
-// 初回訪問かつまだ更新されていない場合
-if (localStorage.getItem('accessCount') === null) {
   updateAccessCount();
-}
+});
 
 // ========== 時間帯別メッセージ ==========
 function getTimeBasedMessage() {
@@ -138,3 +128,36 @@ function showNotification(message) {
   
   setTimeout(() => notification.remove(), 2000);
 }
+
+// ========== プロフィール画像のマウストラッキング3D効果 ==========
+const profileImage = document.querySelector('.profile-image');
+let isMouseOverImage = false;
+
+// プロフィール画像上にマウスが入った時
+profileImage.addEventListener('mouseenter', () => {
+  isMouseOverImage = true;
+});
+
+// プロフィール画像からマウスが出た時
+profileImage.addEventListener('mouseleave', () => {
+  isMouseOverImage = false;
+  profileImage.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+});
+
+// マウスムーブ時（画像上でだけ動く）
+document.addEventListener('mousemove', (e) => {
+  if (!isMouseOverImage) return;
+  
+  const rect = profileImage.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  
+  const mouseX = e.clientX - centerX;
+  const mouseY = e.clientY - centerY;
+  
+  // マウスの角度を計算（-15度から15度の範囲）
+  const rotateY = (mouseX / rect.width) * 30;
+  const rotateX = -(mouseY / rect.height) * 30;
+  
+  profileImage.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1)`;
+});
